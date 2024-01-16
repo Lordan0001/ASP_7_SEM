@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Simplex Service Demo</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#btnCallService").click(function () {
+                var x = $("#txtX").val();
+                var y = $("#txtY").val();
+
+                $.ajax({
+                    type: "POST",
+                    url: "Simplex.asmx/AddS",
+                    data: $.param({ x: x, y: y }),
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    dataType: "json",
+                    success: function (result) {
+                        $("#result").text("Result: " + result.d);
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div>
+            <label for="txtX">X:</label>
+            <input type="text" id="txtX" />
+            <br />
+            <label for="txtY">Y:</label>
+            <input type="text" id="txtY" />
+            <br />
+            <button id="btnCallService">Call Service</button>
+        </div>
+        <div id="result"></div>
+    </form>
+</body>
+</html>

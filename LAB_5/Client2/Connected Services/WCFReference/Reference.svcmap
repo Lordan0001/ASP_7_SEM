@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="eab00dc6-538e-4569-94a9-a94a2f625b20" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://localhost:8739/WCF/WCFSimplex/" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="item.disco" MetadataType="Disco" ID="910c9d21-a543-4809-8132-0336dcadb479" SourceId="1" SourceUrl="http://localhost:8739/WCF/WCFSimplex/?disco" />
+    <MetadataFile FileName="WCFSimplex.wsdl" MetadataType="Wsdl" ID="7fe084fe-0df9-4b38-a5aa-f387747ea761" SourceId="1" SourceUrl="http://localhost:8739/WCF/WCFSimplex/?wsdl" />
+    <MetadataFile FileName="item.xsd" MetadataType="Schema" ID="7c89f74c-38f5-4959-af27-03aa3481ef4b" SourceId="1" SourceUrl="http://localhost:8739/WCF/WCFSimplex/?xsd=xsd2" />
+    <MetadataFile FileName="item1.xsd" MetadataType="Schema" ID="e6fb1642-f04b-4383-9085-c987b49f5c90" SourceId="1" SourceUrl="http://localhost:8739/WCF/WCFSimplex/?xsd=xsd1" />
+    <MetadataFile FileName="item2.xsd" MetadataType="Schema" ID="9b7d0947-2718-41cf-8816-bf66294b0221" SourceId="1" SourceUrl="http://localhost:8739/WCF/WCFSimplex/?xsd=xsd0" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

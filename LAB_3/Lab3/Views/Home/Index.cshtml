@@ -1,0 +1,506 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>index</title>
+    <meta charset="utf-8" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .main-container {
+            display: inline-grid;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1>LAB_3</h1>
+        <label>IsXml format</label>
+        <input type="checkbox" id="isXml" />
+        <label>Limit</label>
+        <input type="number" id="limit" />
+        <label>isSortByName</label>
+        <input type="checkbox" id="isSortByName" />
+        <label>offset</label>
+        <input type="number" id="offset" />
+        <label>minId</label>
+        <input type="number" id="minId" />
+        <label>maxId</label>
+        <input type="number" id="maxId" />
+        <label>like</label>
+        <input type="text" id="like" />
+        <label>columns</label>
+        <input type="text" id="columns" />
+        <label>globalLike</label>
+        <input type="text" id="globalLike" />
+        <button onclick="GetAll()">GetAll</button>
+        <textarea id="Error"></textarea>
+        <label>Update/Create phone</label>
+        <input type="text" id="updatePhone" />
+        <label>Update/Create name</label>
+        <input type="text" id="updateName" />
+
+
+    </div>
+    <script>
+        let isXml;
+        let limit;
+        let isSortByName;
+        let offset;
+        let minId;
+        let maxId;
+        let like;
+        let columns;
+        let globalLike;
+        let updatePhone;
+        let updateName;
+
+        function SetParamsValue() {
+            isXml = document.getElementById('isXml').checked;
+            limit = document.getElementById('limit').value;
+            isSortByName = document.getElementById('isSortByName').checked;
+            offset = document.getElementById('offset').value;
+            minId = document.getElementById('minId').value;
+            maxId = document.getElementById('maxId').value;
+            like = document.getElementById('like').value;
+            columns = document.getElementById('columns').value;
+            globalLike = document.getElementById('globalLike').value;
+            console.log(isXml);
+            console.log(limit);
+            console.log(isSortByName);
+            console.log(offset);
+            console.log(minId);
+            console.log(maxId);
+            console.log(like);
+            console.log(columns);
+            console.log(globalLike);
+        }
+
+        function GetQueryString() {
+            var result = "";
+            if (limit) {
+                result = AddAnd(result);
+                result += 'limit=' + limit;
+            }
+            if (isSortByName) {
+                result = AddAnd(result);
+                result += 'isSortByName=' + isSortByName;
+            }
+            if (offset) {
+                result = AddAnd(result);
+                result += 'offset=' + offset;
+            }
+            if (minId) {
+                result = AddAnd(result);
+                result += 'minId=' + minId;
+            }
+            if (maxId) {
+                result = AddAnd(result);
+                result += 'maxId=' + maxId;
+            }
+            if (like) {
+                result = AddAnd(result);
+                result += 'like=' + replaceSpaces(like);
+            }
+            if (columns) {
+                result = AddAnd(result);
+                result += 'columns=' + replaceSpaces(columns);
+            }
+            if (globalLike) {
+                result = AddAnd(result);
+                result += 'globalLike=' + replaceSpaces(globalLike);
+            }
+            console.log(result);
+            return result;
+        }
+
+        function AddAnd(result) {
+            if (result.length > 3) {
+                result += '&'
+            }
+            return result;
+        }
+
+        function GetType() {
+            if (isXml) {
+                return 'xml';
+            }
+            else {
+                return 'json';
+            }
+        }
+
+        function replaceSpaces(inputText) {
+            return inputText.replace(/ /g, "%20");
+        }
+
+        function GetAll() {
+            SetParamsValue();
+            let queryParams = GetQueryString();
+            const protocol = window.location.protocol;
+            const host = window.location.host;
+
+
+            fetch(`${protocol}//${host}/api/students/getAll.${GetType()}?${queryParams}`)
+                .then(async (response) => {
+
+                    if (response.ok) {
+                        let data = await response.text();
+                        if (isXml) {
+                            buildTableFromXml(data);
+                        } else {
+                            buildTable(JSON.parse(data));
+                        }
+                    } else {
+                        document.getElementById("Error").innerHTML =
+                            response.status + " " + response.statusText;
+                    }
+                })
+                .then((data) => {
+                    console.log(data);
+                })
+                .catch((error) => {
+                    // Обработка ошибок
+                    console.error("Ошибка:", error);
+                });
+        }
+
+        function buildTable(data) {
+            let students;
+            let id;
+            let isSingleObj = true;
+            // Удаляем существующие таблицы, если они есть
+            if (data?.Students) {
+                students = data.Students;
+                id = 'first-table';
+                // Удаляем первую таблицу, если она существует
+                const firstTable = document.querySelector("#first-table");
+                const globalLinksContainer = document.querySelector("#global-links-container");
+                if (firstTable) {
+                    firstTable.parentNode.removeChild(firstTable);
+                }
+                if (globalLinksContainer) {
+                    globalLinksContainer.parentNode.removeChild(globalLinksContainer);
+                }
+
+            }
+            else {
+                isSingleObj = data?.Student;
+                students = isSingleObj ? [data.Student] : null;
+                id = 'second-table';
+                // Удаляем вторую таблицу, если она существует
+                const secondTable = document.querySelector("#second-table");
+                if (secondTable && isSingleObj) {
+                    secondTable.parentNode.removeChild(secondTable);
+                }
+            }
+            // Создаем таблицу для массива данных
+            const table = document.createElement("table");
+            table.id = id;
+
+            // Создаем заголовок таблицы
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+            const headers = ["Id", "Name", "Phone"];
+            headers.forEach((headerText) => {
+                const header = document.createElement("th");
+                header.textContent = headerText;
+                headerRow.appendChild(header);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            // Создаем тело таблицы
+            const tbody = document.createElement("tbody");
+            if (students || isSingleObj) {
+                students.forEach((item) => {
+                    const row = document.createElement("tr");
+
+                    // Добавляем поля id, name, phone в строку таблицы
+                    const fields = ["Id", "Name", "Phone"];
+                    fields.forEach((field) => {
+                        const cell = document.createElement("td");
+                        cell.textContent = item[field];
+                        row.appendChild(cell);
+                    });
+
+                    const selfLinks = item.SelfLinks;
+                    if (selfLinks) {
+                        const cell = document.createElement("td");
+                        selfLinks.forEach((selfLink) => {
+                            const button = document.createElement("button");
+                            button.textContent = selfLink.Rel;
+                            button.addEventListener("click", () => {
+                                const requestOptions = {
+                                    method: selfLink.Method,
+                                };
+                                if (selfLink.Method === "PUT" || selfLink.Method === "POST") {
+                                    const requestBody = {
+                                        Name: document.getElementById('updateName').value,
+                                        Phone: document.getElementById('updatePhone').value,
+                                    };
+                                    requestOptions.headers = {
+                                        "Content-Type": "application/json",
+                                    };
+                                    requestOptions.body = JSON.stringify(requestBody);
+                                }
+                                const protocol1 = window.location.protocol;
+                                const host1 = window.location.host;
+                                const full = `${protocol1}//${host1}/` + selfLink.Href;
+                                console.log(selfLink.Href)
+                                console.log("full" + full)
+                                fetch(full, requestOptions)
+                                    .then(async (response) => {
+                                        console.log(selfLink.Href)
+                                        console.log("full" +full)
+                                        if (response.ok) {
+                                            var data = await response.json();
+                                            buildTable(data)
+                                        }
+                                        else {
+                                            const existingTable = document.querySelector(`#error`);
+                                            if (existingTable) {
+                                                existingTable.parentNode.removeChild(existingTable);
+                                            }
+                                            var data = await response.json();
+                                            var error = data[0];
+                                            const row = document.createElement("div");
+                                            row.id = 'error';
+                                            const button = document.createElement("button");
+                                            button.textContent = error.Rel;
+                                            button.addEventListener("click", () => {
+                                                const requestOptions = {
+                                                    method: error.Method,
+                                                };
+                                                fetch(error.Href, requestOptions)
+                                                    .then(async (response) => {
+                                                        if (response.ok) {
+                                                            var data = await response.json();
+                                                            document.getElementById("Error").innerHTML =
+                                                                response.status + " " + data;
+                                                        }
+                                                    });
+                                            });
+                                            row.appendChild(button);
+                                            document.body.appendChild(row);
+                                            document.getElementById("Error").innerHTML =
+                                                response.status + " " + response.statusText;
+                                        }
+                                    })
+                                    .catch((error) => {
+                                        console.log(error);
+                                        document.getElementById("Error").innerHTML = error;
+                                    });
+                            });
+
+                            cell.appendChild(button);
+                        });
+                        row.appendChild(cell);
+                    }
+
+                    tbody.appendChild(row);
+                });
+                table.appendChild(tbody);
+
+                document.body.appendChild(table);
+
+                if (data.GlobalLinks) {
+                    const globalLinksContainer = document.createElement("div");
+                    globalLinksContainer.id = 'global-links-container';
+                    data.GlobalLinks.forEach((item) => {
+                        const button = document.createElement("button");
+                        button.textContent = item.Rel;
+                        button.addEventListener("click", () => {
+                            const requestOptions = {
+                                method: item.Method,
+                            };
+                            if (item.Method === "PUT" || item.Method === "POST") {
+                                const requestBody = {
+                                    Name: document.getElementById('updateName').value,
+                                    Phone: document.getElementById('updatePhone').value,
+                                };
+                                requestOptions.headers = {
+                                    "Content-Type": "application/json",
+                                };
+                                requestOptions.body = JSON.stringify(requestBody);
+                            }
+
+                            fetch(item.Href, requestOptions)
+                                .then(async (response) => {
+                                    if (response.ok) {
+                                        var data = await response.json();
+                                        buildTable(data)
+                                    }
+                                    else {
+                                        document.getElementById("Error").innerHTML =
+                                            response.status + " " + response.statusText;
+                                    }
+                                })
+                                .catch((error) => {
+                                    console.log(error);
+                                    document.getElementById("Error").innerHTML = error;
+                                });
+                        });
+                        globalLinksContainer.appendChild(button);
+                    });
+
+                    document.body.appendChild(globalLinksContainer);
+                }
+
+            }
+        }
+
+        function buildTableFromXml(xml) {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xml, "text/xml");
+
+            const StudentResponseDto = xmlDoc.getElementsByTagName("StudentResponseDto")[0];
+            const SingleStudentResponseDto = xmlDoc.getElementsByTagName("SingleStudentResponseDto")[0];
+
+            if (!StudentResponseDto && !SingleStudentResponseDto) {
+                return;
+            }
+            const isSingleStudentResponse = SingleStudentResponseDto ? true : false;
+            let id = 0;
+            if (isSingleStudentResponse) {
+                id = 'second-table';
+            }
+            else {
+                id = 'first-table';
+            }
+
+            const existingTable = document.querySelector(`#${id}`);
+            if (existingTable) {
+                existingTable.parentNode.removeChild(existingTable);
+            }
+
+
+            const table = document.createElement("table");
+            table.id = id;
+
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+            const headers = ["Id", "Name", "Phone"];
+            headers.forEach((headerText) => {
+                const header = document.createElement("th");
+                header.textContent = headerText;
+                headerRow.appendChild(header);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement("tbody");
+
+            let obj = false;
+            if (isSingleStudentResponse) {
+                obj = false;
+                const studentNode = SingleStudentResponseDto.getElementsByTagName("Student")[0];
+                const row = createTableRowFromStudentNode(studentNode);
+                tbody.appendChild(row);
+            } else {
+                obj = true;
+                var studentNodes = StudentResponseDto.getElementsByTagName("Students")[0].childNodes;
+                console.log(studentNodes);
+                for (let i = 0; i < studentNodes.length; i++) {
+                    const studentNode = studentNodes[i];
+                    const row = createTableRowFromStudentNode(studentNode);
+                    tbody.appendChild(row);
+                }
+            }
+            if (StudentResponseDto) {
+                const globalLinks = StudentResponseDto.getElementsByTagName("GlobalLinks")[0];
+                let row = document.createElement("tr");
+                tbody.appendChild(addLinkToRow(globalLinks, row));
+            }
+
+            table.appendChild(tbody);
+
+            document.body.appendChild(table);
+        }
+
+        function createTableRowFromStudentNode(studentNode) {
+            const row = document.createElement("tr");
+
+            const id = studentNode.getElementsByTagName("Id")[0].textContent;
+            const name = studentNode.getElementsByTagName("Name")[0].textContent;
+            const phone = studentNode.getElementsByTagName("Phone")[0].textContent;
+
+            const fields = [id, name, phone];
+            fields.forEach((field) => {
+                const cell = document.createElement("td");
+                cell.textContent = field;
+                row.appendChild(cell);
+            });
+
+            const selfLinks = studentNode.getElementsByTagName("SelfLinks")[0];
+            addLinkToRow(selfLinks, row);
+
+            return row;
+        }
+
+        function addLinkToRow(Links, row) {
+            if (Links) {
+                const cell = document.createElement("td");
+                const hateoasNodes = Links.getElementsByTagName("Hateoas");
+                for (let i = 0; i < hateoasNodes.length; i++) {
+                    const linkNode = hateoasNodes[i];
+                    const href = linkNode.getElementsByTagName("Href")[0].textContent;
+                    const method = linkNode.getElementsByTagName("Method")[0].textContent;
+                    const rel = linkNode.getElementsByTagName("Rel")[0].textContent;
+
+                    const button = document.createElement("button");
+                    button.textContent = rel;
+                    button.addEventListener("click", () => {
+                        const requestOptions = {
+                            method: method,
+                        };
+                        if (method === "PUT" || method == "POST") {
+                            const requestBody = {
+                                Name: document.getElementById('updateName').value,
+                                Phone: document.getElementById('updatePhone').value,
+                            };
+                            requestOptions.headers = {
+                                "Content-Type": "application/json",
+                            };
+                            requestOptions.body = JSON.stringify(requestBody);
+                        }
+
+                        fetch(href, requestOptions)
+                            .then(async (response) => {
+                                var data = await response.text();
+                                console.log(response);
+                                if (response.ok && !response.url.includes('error')) {
+                                    buildTableFromXml(data)
+                                }
+                                else {
+                                    const existingTable = document.querySelector(`#error`);
+                                    if (existingTable) {
+                                        existingTable.parentNode.removeChild(existingTable);
+                                    }
+                                    const parser = new DOMParser();
+                                    const xmlDoc = parser.parseFromString(data, "text/xml");
+                                    const row = document.createElement("div");
+                                    row.id = 'error';
+                                    addLinkToRow(xmlDoc, row)
+                                    document.body.appendChild(row);
+                                    document.getElementById("Error").innerHTML =
+                                        response.status + " " + xmlDoc.children[0].textContent;
+                                }
+                            })
+                            .catch((error) => {
+                                console.log(error);
+                                document.getElementById("Error").innerHTML = error;
+                            });
+                    });
+
+                    cell.appendChild(button);
+                }
+                row.appendChild(cell);
+                return row;
+            }
+        }
+
+
+    </script>
+</body>
+</html>

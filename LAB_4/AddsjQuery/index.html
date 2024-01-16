@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <form id="form1">
+        <p>X:<input type="text" id="x" /></p>
+        <p>Y:<input type="text" id="y" /></p>
+        <p>Result:<input type="text" id="result" /></p>
+        <p><input type="button" onclick="getSum_Ajax()" value="Click" /></p>
+    </form>
+        <script src="jquery-3.7.1.min.js"></script>
+<!--    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>-->
+
+    <script>
+        function getSum_Ajax() {
+            const data = {
+                x: parseInt($("#x").val()),
+                y: parseInt($("#y").val())
+            };
+            $.ajax({
+                url: "http://localhost:58377/Simplex.asmx/Adds",
+                type: "POST",
+                dataType: "json",
+                /*    contentType: "application/json; charset=utf-8",*/
+                contentType: "application/x-www-form-urlencoded",
+                data: data,
+                success: result => {
+                    $("#result").val(result.d);
+                },
+                error: error => {
+                    console.log(error);
+                }
+            })
+        }</script>
+
+</body>
+</html>
